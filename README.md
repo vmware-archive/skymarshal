@@ -7,4 +7,4 @@ This library is a thin wrapper around [coreos/dex](http://github.com/coreos/dex)
 
 ### Future considerations
 
-We want to investigate the ability to grant personal access tokens.
+We want to investigate the ability to grant personal access tokens. This should just be a matter of exchanging the personal access token for a concourse token which contains all necessary claims.
