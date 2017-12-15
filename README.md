@@ -1,5 +1,5 @@
 
-# passport
+# skymarshal
 
 Concourse passport is responsible for issuing tokens that will be consumed by the `atc`. They should be statically verifiable and contain all required openid connect claims, as well as a `groups` claim for verifying concourse `team` membership. 
 
