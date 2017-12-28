@@ -7,7 +7,6 @@ import (
 	"code.cloudfoundry.org/lager"
 	"github.com/concourse/atc/db"
 	"github.com/concourse/skymarshal/provider"
-	"github.com/concourse/skymarshal/routes"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/tedsuo/rata"
 )
@@ -30,16 +29,16 @@ func NewOAuthHandler(
 	isTLSEnabled bool,
 ) (http.Handler, error) {
 	return rata.NewRouter(
-		routes.OAuthRoutes,
+		Routes,
 		map[string]http.Handler{
-			routes.OAuthBegin: NewOAuthBeginHandler(
+			OAuthBegin: NewOAuthBeginHandler(
 				logger.Session("oauth-begin"),
 				providerFactory,
 				teamFactory,
 				expire,
 				isTLSEnabled,
 			),
-			routes.OAuthCallback: NewOAuthCallbackHandler(
+			OAuthCallback: NewOAuthCallbackHandler(
 				logger.Session("oauth-callback"),
 				providerFactory,
 				teamFactory,
@@ -49,7 +48,7 @@ func NewOAuthHandler(
 				isTLSEnabled,
 				oauthV2StateValidator{},
 			),
-			routes.LogOut: NewLogOutHandler(
+			LogOut: NewLogOutHandler(
 				logger.Session("logout"),
 			),
 		},
@@ -66,16 +65,16 @@ func NewOAuthV1Handler(
 	isTLSEnabled bool,
 ) (http.Handler, error) {
 	return rata.NewRouter(
-		routes.OAuthV1Routes,
+		V1Routes,
 		map[string]http.Handler{
-			routes.OAuthV1Begin: NewOAuthBeginHandler(
+			OAuthV1Begin: NewOAuthBeginHandler(
 				logger.Session("oauth-v1-begin"),
 				providerFactory,
 				teamFactory,
 				expire,
 				isTLSEnabled,
 			),
-			routes.OAuthV1Callback: NewOAuthCallbackHandler(
+			OAuthV1Callback: NewOAuthCallbackHandler(
 				logger.Session("oauth-v1-callback"),
 				providerFactory,
 				teamFactory,

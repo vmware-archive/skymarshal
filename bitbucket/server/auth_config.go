@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/concourse/skymarshal/auth"
 	"github.com/concourse/skymarshal/bitbucket"
 	"github.com/concourse/skymarshal/provider"
-	"github.com/concourse/skymarshal/routes"
 	"github.com/hashicorp/go-multierror"
 	"github.com/tedsuo/rata"
 )
@@ -21,9 +21,9 @@ type AuthConfig struct {
 	Repositories []bitbucket.RepositoryConfig `json:"repositories,omitempty" long:"repository" description:"Bitbucket repositories whose members are allowed to log in" value-name:"OWNER/REPO"`
 }
 
-func (auth *AuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.AuthMethod {
-	path, err := routes.OAuthV1Routes.CreatePathForRoute(
-		routes.OAuthV1Begin,
+func (config *AuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.AuthMethod {
+	path, err := auth.V1Routes.CreatePathForRoute(
+		auth.OAuthV1Begin,
 		rata.Params{"provider": ProviderName},
 	)
 	if err != nil {
@@ -39,30 +39,30 @@ func (auth *AuthConfig) AuthMethod(oauthBaseURL string, teamName string) provide
 	}
 }
 
-func (auth *AuthConfig) IsConfigured() bool {
-	return auth.ConsumerKey != "" ||
-		auth.PrivateKey.PrivateKey != nil ||
-		auth.Endpoint != "" ||
-		len(auth.Users) > 0 ||
-		len(auth.Projects) > 0 ||
-		len(auth.Repositories) > 0
+func (config *AuthConfig) IsConfigured() bool {
+	return config.ConsumerKey != "" ||
+		config.PrivateKey.PrivateKey != nil ||
+		config.Endpoint != "" ||
+		len(config.Users) > 0 ||
+		len(config.Projects) > 0 ||
+		len(config.Repositories) > 0
 }
 
-func (auth *AuthConfig) Validate() error {
+func (config *AuthConfig) Validate() error {
 	var errs *multierror.Error
-	if auth.Endpoint == "" {
+	if config.Endpoint == "" {
 		errs = multierror.Append(
 			errs,
 			errors.New("must specifiy --bitbucket-server-auth-endpoint to use OAuth with Bitbucket Server"),
 		)
 	}
-	if auth.ConsumerKey == "" || auth.PrivateKey.PrivateKey == nil {
+	if config.ConsumerKey == "" || config.PrivateKey.PrivateKey == nil {
 		errs = multierror.Append(
 			errs,
 			errors.New("must specify --bitbucket-server-auth-consumer-key and --bitbucket-server-auth-private-key to use OAuth with Bitbucket Server"),
 		)
 	}
-	if len(auth.Users) == 0 && len(auth.Projects) == 0 && len(auth.Repositories) == 0 {
+	if len(config.Users) == 0 && len(config.Projects) == 0 && len(config.Repositories) == 0 {
 		errs = multierror.Append(
 			errs,
 			errors.New("at least one of the following is required for bitbucket-server-auth: user, project, repository"),

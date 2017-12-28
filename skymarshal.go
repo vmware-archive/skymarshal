@@ -9,7 +9,6 @@ import (
 	"github.com/concourse/atc/db"
 	"github.com/concourse/skymarshal/auth"
 	"github.com/concourse/skymarshal/authserver"
-	"github.com/concourse/skymarshal/routes"
 )
 
 type Config struct {
@@ -45,15 +44,15 @@ func NewHandler(config *Config) (http.Handler, error) {
 	oauthFactory := auth.NewOAuthFactory(
 		config.Logger.Session("oauth-provider-factory"),
 		config.BaseAuthUrl,
-		routes.OAuthRoutes,
-		routes.OAuthCallback,
+		auth.Routes,
+		auth.OAuthCallback,
 	)
 
 	oauthFactoryV1 := auth.NewOAuthFactory(
 		config.Logger.Session("oauth-v1-provider-factory"),
 		config.BaseAuthUrl,
-		routes.OAuthV1Routes,
-		routes.OAuthV1Callback,
+		auth.V1Routes,
+		auth.OAuthV1Callback,
 	)
 
 	return NewHandlerWithOptions(&DetailedConfig{

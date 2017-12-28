@@ -1,4 +1,4 @@
-package routes
+package auth
 
 import "github.com/tedsuo/rata"
 
@@ -10,13 +10,13 @@ const (
 	LogOut          = "LogOut"
 )
 
-var OAuthRoutes = rata.Routes{
+var Routes = rata.Routes{
 	{Path: "/oauth/logout", Method: "GET", Name: LogOut},
 	{Path: "/oauth/:provider/callback", Method: "GET", Name: OAuthCallback},
 	{Path: "/oauth/:provider", Method: "GET", Name: OAuthBegin},
 }
 
-var OAuthV1Routes = rata.Routes{
+var V1Routes = rata.Routes{
 	{Path: "/oauth/v1/:provider/callback", Method: "GET", Name: OAuthV1Callback},
 	{Path: "/oauth/v1/:provider", Method: "GET", Name: OAuthV1Begin},
 }

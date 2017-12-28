@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/concourse/skymarshal/auth"
 	"github.com/concourse/skymarshal/bitbucket"
 	"github.com/concourse/skymarshal/provider"
-	"github.com/concourse/skymarshal/routes"
 	"github.com/hashicorp/go-multierror"
 	"github.com/tedsuo/rata"
 )
@@ -24,9 +24,9 @@ type AuthConfig struct {
 	APIURL   string `json:"apiurl,omitempty" long:"api-url" description:"Override default API endpoint URL for Bitbucket Cloud"`
 }
 
-func (auth *AuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.AuthMethod {
-	path, err := routes.OAuthRoutes.CreatePathForRoute(
-		routes.OAuthBegin,
+func (config *AuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.AuthMethod {
+	path, err := auth.Routes.CreatePathForRoute(
+		auth.OAuthBegin,
 		rata.Params{"provider": ProviderName},
 	)
 	if err != nil {
@@ -42,23 +42,23 @@ func (auth *AuthConfig) AuthMethod(oauthBaseURL string, teamName string) provide
 	}
 }
 
-func (auth *AuthConfig) IsConfigured() bool {
-	return auth.ClientID != "" ||
-		auth.ClientSecret != "" ||
-		len(auth.Users) > 0 ||
-		len(auth.Teams) > 0 ||
-		len(auth.Repositories) > 0
+func (config *AuthConfig) IsConfigured() bool {
+	return config.ClientID != "" ||
+		config.ClientSecret != "" ||
+		len(config.Users) > 0 ||
+		len(config.Teams) > 0 ||
+		len(config.Repositories) > 0
 }
 
-func (auth *AuthConfig) Validate() error {
+func (config *AuthConfig) Validate() error {
 	var errs *multierror.Error
-	if auth.ClientID == "" || auth.ClientSecret == "" {
+	if config.ClientID == "" || config.ClientSecret == "" {
 		errs = multierror.Append(
 			errs,
 			errors.New("must specify --bitbucket-cloud-auth-client-id and --bitbucket-cloud-auth-client-secret to use OAuth with Bitbucket Cloud"),
 		)
 	}
-	if len(auth.Users) == 0 && len(auth.Teams) == 0 && len(auth.Repositories) == 0 {
+	if len(config.Users) == 0 && len(config.Teams) == 0 && len(config.Repositories) == 0 {
 		errs = multierror.Append(
 			errs,
 			errors.New("at least one of the following is required for bitbucket-cloud-auth: user, team, repository"),

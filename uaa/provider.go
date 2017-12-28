@@ -11,7 +11,6 @@ import (
 
 	"github.com/concourse/skymarshal/auth"
 	"github.com/concourse/skymarshal/provider"
-	"github.com/concourse/skymarshal/routes"
 	"github.com/concourse/skymarshal/verifier"
 	"github.com/hashicorp/go-multierror"
 	flags "github.com/jessevdk/go-flags"
@@ -54,9 +53,9 @@ type UAAAuthConfig struct {
 	CFCACert auth.FileContentsFlag `json:"cf_ca_cert,omitempty"    long:"cf-ca-cert"    description:"Path to CF PEM-encoded CA certificate file."`
 }
 
-func (*UAAAuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.AuthMethod {
-	path, err := routes.OAuthRoutes.CreatePathForRoute(
-		routes.OAuthBegin,
+func (config *UAAAuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.AuthMethod {
+	path, err := auth.Routes.CreatePathForRoute(
+		auth.OAuthBegin,
 		rata.Params{"provider": ProviderName},
 	)
 	if err != nil {
@@ -72,30 +71,30 @@ func (*UAAAuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.
 	}
 }
 
-func (auth *UAAAuthConfig) IsConfigured() bool {
-	return auth.ClientID != "" ||
-		auth.ClientSecret != "" ||
-		len(auth.CFSpaces) > 0 ||
-		auth.AuthURL != "" ||
-		auth.TokenURL != "" ||
-		auth.CFURL != ""
+func (config *UAAAuthConfig) IsConfigured() bool {
+	return config.ClientID != "" ||
+		config.ClientSecret != "" ||
+		len(config.CFSpaces) > 0 ||
+		config.AuthURL != "" ||
+		config.TokenURL != "" ||
+		config.CFURL != ""
 }
 
-func (auth *UAAAuthConfig) Validate() error {
+func (config *UAAAuthConfig) Validate() error {
 	var errs *multierror.Error
-	if auth.ClientID == "" || auth.ClientSecret == "" {
+	if config.ClientID == "" || config.ClientSecret == "" {
 		errs = multierror.Append(
 			errs,
 			errors.New("must specify --uaa-auth-client-id and --uaa-auth-client-secret to use UAA OAuth."),
 		)
 	}
-	if len(auth.CFSpaces) == 0 {
+	if len(config.CFSpaces) == 0 {
 		errs = multierror.Append(
 			errs,
 			errors.New("must specify --uaa-auth-cf-space to use UAA OAuth."),
 		)
 	}
-	if auth.AuthURL == "" || auth.TokenURL == "" || auth.CFURL == "" {
+	if config.AuthURL == "" || config.TokenURL == "" || config.CFURL == "" {
 		errs = multierror.Append(
 			errs,
 			errors.New("must specify --uaa-auth-auth-url, --uaa-auth-token-url and --uaa-auth-cf-url to use UAA OAuth."),

@@ -13,7 +13,6 @@ import (
 
 	"github.com/concourse/skymarshal/auth"
 	"github.com/concourse/skymarshal/provider"
-	"github.com/concourse/skymarshal/routes"
 	"github.com/concourse/skymarshal/verifier"
 	"github.com/hashicorp/go-multierror"
 	flags "github.com/jessevdk/go-flags"
@@ -54,8 +53,8 @@ type GenericOAuthConfig struct {
 }
 
 func (config *GenericOAuthConfig) AuthMethod(oauthBaseURL string, teamName string) provider.AuthMethod {
-	path, err := routes.OAuthRoutes.CreatePathForRoute(
-		routes.OAuthBegin,
+	path, err := auth.Routes.CreatePathForRoute(
+		auth.OAuthBegin,
 		rata.Params{"provider": ProviderName},
 	)
 	if err != nil {

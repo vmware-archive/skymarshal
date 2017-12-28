@@ -8,7 +8,6 @@ import (
 	"github.com/concourse/skymarshal/auth"
 	"github.com/concourse/skymarshal/genericoauth"
 	"github.com/concourse/skymarshal/github"
-	"github.com/concourse/skymarshal/routes"
 	"github.com/concourse/skymarshal/uaa"
 
 	. "github.com/onsi/ginkgo"
@@ -28,8 +27,8 @@ var _ = Describe("OAuthFactory", func() {
 		oauthFactory = auth.NewOAuthFactory(
 			lagertest.NewTestLogger("test"),
 			"http://foo.bar",
-			routes.OAuthRoutes,
-			routes.OAuthCallback,
+			auth.Routes,
+			auth.OAuthCallback,
 		)
 	})
 
