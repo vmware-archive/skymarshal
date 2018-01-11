@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/concourse/atc/auth/gitlab",
+	"ImportPath": "github.com/concourse/skymarshal/gitlab",
 	"GoVersion": "go1.8",
 	"GodepVersion": "v79",
 	"Packages": [
