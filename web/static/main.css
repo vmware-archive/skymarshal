@@ -72,16 +72,6 @@ body {
   margin: 20px auto 0;
 }
 
-.dex-powered-by {
-  opacity: 0.2;
-}
-
-.dex-powered-by img {
-  height: 40px;
-  margin: 20px 0px;
-  vertical-align: middle;
-}
-
 .dex-btn-icon--cf {
   background-image: url(../static/img/cf-icon.svg);
 }
