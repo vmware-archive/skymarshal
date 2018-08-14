@@ -34,9 +34,8 @@ func (self *Server) PublicKey() *rsa.PublicKey {
 }
 
 func NewServer(config *Config) (*Server, error) {
-
 	clientId := "skymarshal"
-	clientSecret := token.RandomString()
+	clientSecret := config.ClientSecret
 
 	signingKey, err := loadOrGenerateSigningKey(config.Flags.SigningKey)
 	if err != nil {
