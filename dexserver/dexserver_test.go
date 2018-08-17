@@ -1,28 +1,49 @@
 package dexserver_test
 
 import (
+	"database/sql"
 	"sort"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"code.cloudfoundry.org/lager/lagertest"
+	"github.com/concourse/dex/server"
+	"github.com/concourse/flag"
 	"github.com/concourse/skymarshal/dexserver"
 	"github.com/concourse/skymarshal/skycmd"
-	"github.com/concourse/dex/server"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var _ = Describe("Dex Server", func() {
 	var config *dexserver.DexConfig
 	var serverConfig server.Config
+	var postgresConfig flag.PostgresConfig
+	var db *sql.DB
+	var err error
 
 	Describe("Configuration", func() {
 		BeforeEach(func() {
 			config = &dexserver.DexConfig{}
+			postgresConfig = flag.PostgresConfig{
+				Host:     "127.0.0.1",
+				Port:     uint16(5433 + GinkgoParallelNode()),
+				User:     "postgres",
+				SSLMode:  "disable",
+				Database: "testdb",
+			}
+		})
+
+		AfterEach(func() {
+			serverConfig.Storage.Close()
 		})
 
 		JustBeforeEach(func() {
+			db, err = sql.Open("postgres", postgresRunner.DataSourceName())
+			Expect(err).NotTo(HaveOccurred())
+			db.Exec("CREATE SCHEMA IF NOT EXISTS dex")
+			db.Close()
+
 			serverConfig = dexserver.NewDexServerConfig(config)
 		})
 
@@ -31,8 +52,10 @@ var _ = Describe("Dex Server", func() {
 				config = &dexserver.DexConfig{
 					Logger:    lagertest.NewTestLogger("dex"),
 					IssuerURL: "http://example.com/",
+					Postgres:  postgresConfig,
 				}
 			})
+
 			It("configures expected values", func() {
 				Expect(serverConfig.PasswordConnector).To(Equal("local"))
 				Expect(serverConfig.SupportedResponseTypes).To(ConsistOf("code", "token", "id_token"))
@@ -78,7 +101,8 @@ var _ = Describe("Dex Server", func() {
 			Context("when the user's password is provided as a bcrypt hash", func() {
 				BeforeEach(func() {
 					config = &dexserver.DexConfig{
-						Logger: lagertest.NewTestLogger("dex"),
+						Logger:   lagertest.NewTestLogger("dex"),
+						Postgres: postgresConfig,
 						Flags: skycmd.AuthFlags{
 							LocalUsers: map[string]string{
 								"some-user-0": "$2a$10$3veRX245rLrpOKrgu7jIyOEKF5Km5tY86bZql6/oTMssgPO/6XJju",
@@ -94,7 +118,8 @@ var _ = Describe("Dex Server", func() {
 			Context("when the user's password is provided in plaintext", func() {
 				BeforeEach(func() {
 					config = &dexserver.DexConfig{
-						Logger: lagertest.NewTestLogger("dex"),
+						Logger:   lagertest.NewTestLogger("dex"),
+						Postgres: postgresConfig,
 						Flags: skycmd.AuthFlags{
 							LocalUsers: map[string]string{
 								"some-user-0": "some-password-0",
@@ -112,6 +137,7 @@ var _ = Describe("Dex Server", func() {
 			BeforeEach(func() {
 				config = &dexserver.DexConfig{
 					Logger:       lagertest.NewTestLogger("dex"),
+					Postgres:     postgresConfig,
 					ClientID:     "some-client-id",
 					ClientSecret: "some-client-secret",
 					RedirectURL:  "http://example.com",
