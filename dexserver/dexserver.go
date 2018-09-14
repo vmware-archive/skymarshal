@@ -17,14 +17,15 @@ import (
 )
 
 type DexConfig struct {
-	Logger       lager.Logger
-	IssuerURL    string
-	WebHostURL   string
-	ClientID     string
-	ClientSecret string
-	RedirectURL  string
-	Flags        skycmd.AuthFlags
-	Postgres     flag.PostgresConfig
+	Logger            lager.Logger
+	InternalIssuerURL string
+	ExternalIssuerURL string
+	WebHostURL        string
+	ClientID          string
+	ClientSecret      string
+	RedirectURL       string
+	Flags             skycmd.AuthFlags
+	Postgres          flag.PostgresConfig
 }
 
 func NewDexServer(config *DexConfig) (*server.Server, error) {
@@ -120,7 +121,7 @@ func NewDexServerConfig(config *DexConfig) (server.Config, error) {
 		}
 	}
 
-	redirectURI := strings.TrimRight(config.IssuerURL, "/") + "/callback"
+	redirectURI := strings.TrimRight(config.ExternalIssuerURL, "/") + "/callback"
 
 	for _, connector := range skycmd.GetConnectors() {
 		if c, err := connector.Serialize(redirectURI); err == nil {
@@ -180,7 +181,8 @@ func NewDexServerConfig(config *DexConfig) (server.Config, error) {
 		PasswordConnector:      "local",
 		SupportedResponseTypes: []string{"code", "token", "id_token"},
 		SkipApprovalScreen:     true,
-		Issuer:                 config.IssuerURL,
+		InternalIssuerURL:      config.InternalIssuerURL,
+		ExternalIssuerURL:      config.ExternalIssuerURL,
 		Storage:                store,
 		Web:                    webConfig,
 		Logger:                 log,

@@ -56,7 +56,6 @@ func NewServer(config *Config) (*Server, error) {
 	issuerURL := externalURL.String() + issuerPath
 	redirectURL := externalURL.String() + "/sky/callback"
 
-	tokenVerifier := token.NewVerifier(clientId, issuerURL)
 	tokenIssuer := token.NewIssuer(config.TeamFactory, token.NewGenerator(signingKey), config.Flags.Expiration)
 
 	internalURL, err := url.Parse(issuerURL)
@@ -66,6 +65,8 @@ func NewServer(config *Config) (*Server, error) {
 
 	internalURL.Scheme = "http"
 	internalURL.Host = config.InternalHost
+
+	tokenVerifier := token.NewVerifier(clientId, internalURL.String())
 
 	skyServer, err := skyserver.NewSkyServer(&skyserver.SkyConfig{
 		Logger:               config.Logger.Session("sky"),
@@ -85,14 +86,15 @@ func NewServer(config *Config) (*Server, error) {
 	}
 
 	dexServer, err := dexserver.NewDexServer(&dexserver.DexConfig{
-		Logger:       config.Logger.Session("dex"),
-		Flags:        config.Flags,
-		IssuerURL:    issuerURL,
-		WebHostURL:   issuerPath,
-		ClientID:     clientId,
-		ClientSecret: clientSecret,
-		RedirectURL:  redirectURL,
-		Postgres:     config.Postgres,
+		Logger:            config.Logger.Session("dex"),
+		Flags:             config.Flags,
+		InternalIssuerURL: internalURL.String(),
+		ExternalIssuerURL: issuerURL,
+		WebHostURL:        issuerPath,
+		ClientID:          clientId,
+		ClientSecret:      clientSecret,
+		RedirectURL:       redirectURL,
+		Postgres:          config.Postgres,
 	})
 	if err != nil {
 		return nil, err
