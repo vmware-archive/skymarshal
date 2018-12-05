@@ -250,11 +250,13 @@ func (self *skyServer) Redirect(w http.ResponseWriter, r *http.Request, token *o
 	})
 
 	params := redirectUrl.Query()
-	params.Set("token", tokenStr)
 	params.Set("csrf_token", csrfToken)
-	redirectUrl.RawQuery = params.Encode()
 
-	w.Header().Set("X-Csrf-Token", csrfToken)
+	if redirectUrl.Hostname() == "127.0.0.1" {
+		params.Set("token", tokenStr)
+	}
+
+	redirectUrl.RawQuery = params.Encode()
 
 	http.Redirect(w, r, redirectUrl.String(), http.StatusTemporaryRedirect)
 }
