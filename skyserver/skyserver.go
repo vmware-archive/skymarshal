@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -250,14 +251,18 @@ func (self *skyServer) Redirect(w http.ResponseWriter, r *http.Request, token *o
 	})
 
 	params := redirectUrl.Query()
-	params.Set("csrf_token", csrfToken)
 
-	if redirectUrl.Hostname() == "127.0.0.1" {
+	if redirectUrl.Host == "" {
+		params.Set("csrf_token", csrfToken)
+	} else if redirectUrl.Hostname() == "127.0.0.1" {
 		params.Set("token", tokenStr)
+	} else {
+		logger.Error("invalid-redirect", fmt.Errorf("Unsupported redirect uri: %s", redirectUri))
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	redirectUrl.RawQuery = params.Encode()
-
 	http.Redirect(w, r, redirectUrl.String(), http.StatusTemporaryRedirect)
 }
 

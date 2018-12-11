@@ -12,7 +12,6 @@ import (
 	"github.com/concourse/atc/db/dbfakes"
 	"github.com/concourse/skymarshal/skyserver"
 	"github.com/concourse/skymarshal/token/tokenfakes"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/ghttp"
